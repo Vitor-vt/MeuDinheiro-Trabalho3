@@ -1,212 +1,275 @@
-# 💰 Meu Dinheiro — Trabalho 2 (MAF)
+# 💰 Meu Dinheiro — Trabalho 3
+## 📱 Persistência de Dados com Room Database
 
-## 📱 Sobre o projeto
+### 📌 Sobre o projeto
 
-O **Meu Dinheiro** é um aplicativo simples de controle financeiro desenvolvido em **Kotlin** utilizando **Android Studio** e **Jetpack Compose**.
+O **Meu Dinheiro** é um aplicativo Android de controle financeiro desenvolvido em **Kotlin**, utilizando **Jetpack Compose** e **Android Studio**.
 
-O aplicativo permite ao usuário controlar seu saldo, registrar entradas e gastos, acompanhar movimentações, guardar dinheiro em uma caixinha, definir uma meta de economia e realizar transferências.
+Este repositório corresponde ao **Trabalho 3 da disciplina de Desenvolvimento de Aplicativos Móveis**, dando continuidade ao aplicativo desenvolvido nos Trabalhos 1 e 2.
 
-Este projeto corresponde ao **Trabalho 2 — MAF (Mínimo Aplicativo Funcional)** e representa a evolução do aplicativo desenvolvido no Trabalho 1.
+Nesta etapa, o principal objetivo foi implementar um banco de dados local utilizando **Room Database**, permitindo armazenar as movimentações financeiras de maneira persistente.
 
----
-
-## 🎯 Objetivo
-
-O objetivo do aplicativo é oferecer uma forma simples de organizar o dinheiro, permitindo que o usuário registre suas movimentações e acompanhe sua situação financeira.
+Agora, mesmo depois de fechar e abrir o aplicativo, os registros continuam armazenados.
 
 ---
 
-## 🚀 Funcionalidades
+## 🎯 Objetivo do Trabalho 3
 
-O aplicativo possui:
+Implementar a persistência dos dados financeiros utilizando a biblioteca Room, substituindo o armazenamento temporário das movimentações por registros em um banco de dados local.
 
-- 💰 Controle de saldo
-- ➕ Adição de entradas
-- ➖ Registro de gastos
-- 📋 Lista de movimentações
-- 🔎 Visualização dos detalhes de uma movimentação
-- 🐷 Minha Caixinha
-- 💵 Guardar dinheiro na Caixinha
-- 💸 Retirar dinheiro da Caixinha
-- 🗑️ Remover movimentações da Caixinha
-- 🔎 Visualização dos detalhes da Caixinha
-- 🎯 Definição de meta de economia
-- 📊 Resumo do mês
-- 💳 Transferência
+Os principais objetivos foram:
+
+- Implementar duas entidades utilizando `@Entity`.
+- Criar duas interfaces DAO utilizando `@Dao`.
+- Implementar as operações CRUD.
+- Consultar movimentações diretamente pelo ID.
+- Utilizar Kotlin Coroutines nas operações do banco.
+- Manter os dados armazenados após fechar o aplicativo.
+- Integrar o banco às telas existentes.
 
 ---
 
 ## 🛠️ Tecnologias utilizadas
 
-- Kotlin
-- Android Studio
-- Jetpack Compose
-- Material 3
-- Navigation Compose
-- LazyColumn
-- Card
-- MutableStateListOf
-- NavController
-- NavHost
+- **Kotlin** — linguagem de programação.
+- **Android Studio** — ambiente de desenvolvimento.
+- **Jetpack Compose** — construção das interfaces.
+- **Material 3** — componentes visuais.
+- **Navigation Compose** — navegação entre telas.
+- **Room Database** — persistência dos dados.
+- **SQLite** — banco de dados local utilizado pelo Room.
+- **KSP** — processamento das anotações do Room.
+- **Kotlin Coroutines** — execução de operações assíncronas.
+- **Flow** — observação dos registros armazenados.
 
 ---
 
-## 🧭 Navegação
+## 🗄️ Estrutura do banco de dados
 
-A navegação do aplicativo foi organizada utilizando:
+Foi criado o arquivo `BancoDados.kt`, responsável por organizar as entidades, interfaces DAO e a classe principal do banco de dados.
 
-- `NavController`
-- `NavHost`
-- Objeto `Rotas`
+O aplicativo utiliza duas tabelas.
 
-As telas possuem rotas próprias, permitindo a navegação entre a tela inicial, movimentações, detalhes, caixinha, resumo, meta e transferência.
+### 1. MovimentacaoEntity
 
----
+Representa a tabela `movimentacoes`, responsável pelo armazenamento das entradas, gastos e demais movimentações financeiras.
 
-## 📋 Listas e detalhes
+| Campo | Tipo | Descrição |
+|---|---|---|
+| id | Long | Identificador único |
+| descricao | String | Descrição da movimentação |
+| valor | Double | Valor da movimentação |
+| tipo | String | Tipo da movimentação |
+| data | Long | Data do registro |
 
-O aplicativo possui duas listas principais:
+O campo `id` utiliza `@PrimaryKey(autoGenerate = true)`.
 
-### Movimentações
+### 2. MovimentacaoCaixinhaEntity
 
-Apresenta as entradas e gastos registrados pelo usuário.
+Representa a tabela `movimentacoes_caixinha`, responsável pelo armazenamento dos depósitos e retiradas da Caixinha.
 
-Cada item apresenta:
+| Campo | Tipo | Descrição |
+|---|---|---|
+| id | Long | Identificador único |
+| valor | Double | Valor movimentado |
+| tipo | String | Depósito ou retirada |
+| data | Long | Data do registro |
 
-- Descrição
-- Tipo da movimentação
-- Valor
-- Botão para visualizar os detalhes
-
-### Movimentações da Caixinha
-
-Apresenta os depósitos e retiradas realizados na Caixinha.
-
-Cada item possui:
-
-- Tipo
-- Valor
-- Botão para visualizar detalhes
-- Botão para remover a movimentação
+Essa entidade também utiliza `@PrimaryKey(autoGenerate = true)`.
 
 ---
 
-## 🧩 Data Classes
+## 🔧 Interfaces DAO
 
-Foram utilizadas duas `data class` para representar os dados do aplicativo:
+Foram criadas duas interfaces responsáveis pela comunicação com o banco de dados.
 
-### Movimentacao
+### MovimentacaoDao
 
-Responsável por representar entradas e gastos.
+Responsável pelas operações relacionadas às movimentações financeiras.
 
-### MovimentacaoCaixinha
+Possui os métodos:
 
-Responsável por representar depósitos e retiradas da Caixinha.
+- `observarTodas()` — consultar todas as movimentações.
+- `observarPorId(id)` — consultar uma movimentação pelo ID.
+- `inserir(item)` — adicionar uma movimentação.
+- `atualizar(item)` — editar uma movimentação.
+- `excluir(item)` — remover uma movimentação.
 
----
+### CaixinhaDao
 
-## 🔄 Evolução do Trabalho 1
+Responsável pelas operações relacionadas à Caixinha.
 
-O Trabalho 2 evoluiu o aplicativo desenvolvido anteriormente, adicionando novas funcionalidades e melhorando sua organização.
+Possui os métodos:
 
-Foram adicionados:
+- `observarTodas()` — consultar os registros da Caixinha.
+- `observarPorId(id)` — consultar um registro pelo ID.
+- `inserir(item)` — adicionar um registro.
+- `atualizar(item)` — atualizar um registro.
+- `excluir(item)` — remover um registro.
 
-- Navegação utilizando `NavHost` e `NavController`
-- Organização das rotas utilizando o objeto `Rotas`
-- Listas utilizando `LazyColumn`
-- Componentes `Card`
-- Duas `data class`
-- Lista reativa utilizando `mutableStateListOf`
-- Telas de detalhes
-- Funcionalidade de remoção de movimentações
-- Maior organização entre as telas do aplicativo
-
----
-
-## 🆕 Novas telas
-
-Foram adicionadas telas de detalhes para permitir que o usuário selecione uma movimentação e visualize suas informações individualmente.
-
-Também foram desenvolvidas funcionalidades relacionadas à **Minha Caixinha**, permitindo guardar e retirar dinheiro e visualizar suas movimentações.
-
-Essas novas telas foram criadas para deixar o aplicativo mais completo e facilitar a utilização pelo usuário.
+As interfaces utilizam as anotações `@Insert`, `@Query`, `@Update` e `@Delete`.
 
 ---
 
-## 🏗️ Organização do código
+## 🏗️ Classe MeuDinheiroDatabase
 
-O projeto foi organizado separando as telas e os modelos de dados em arquivos diferentes.
+Foi implementada a classe `MeuDinheiroDatabase`, responsável por centralizar o acesso ao banco de dados.
 
-Exemplos:
+A classe utiliza a anotação `@Database` e herda de `RoomDatabase`.
 
-- `MainActivity.kt` — controle principal e navegação
-- `Rotas.kt` — definição das rotas
-- `Movimentacao.kt` — modelo de movimentação
-- `MovimentacaoCaixinha.kt` — modelo da Caixinha
-- `TelaMovimentacoes.kt` — lista de movimentações
-- `DetalheMovimentacao.kt` — detalhes da movimentação
-- `TelaCaixinha.kt` — tela da Caixinha
-- `DetalheMovimentacaoCaixinha.kt` — detalhes da Caixinha
-- `TelaResumoMes.kt` — resumo mensal
-- `TelaMetaEconomia.kt` — meta de economia
-- `TelaTransferencia.kt` — transferências
-- `TelaSobre.kt` — informações sobre o aplicativo
+O banco foi configurado utilizando `Room.databaseBuilder()` e o padrão **Singleton**, evitando a criação desnecessária de várias instâncias.
 
-Essa organização facilita a manutenção e permite que cada tela tenha uma responsabilidade mais específica.
+O armazenamento é realizado localmente no dispositivo Android.
 
 ---
 
-## ⚖️ Decisões e complexidade
+## 🔄 Operações CRUD
 
-Uma das principais decisões foi utilizar listas reativas com `mutableStateListOf`.
+O aplicativo implementa as quatro operações fundamentais do banco de dados.
 
-Essa escolha permite que as alterações realizadas nas movimentações sejam refletidas automaticamente na interface.
+| Operação | Funcionalidade |
+|---|---|
+| Create | Adicionar movimentações |
+| Read | Consultar movimentações e detalhes |
+| Update | Editar registros existentes |
+| Delete | Excluir movimentações |
 
-Também foram utilizadas telas de detalhes para que o usuário possa selecionar uma movimentação específica e visualizar suas informações.
+As operações foram integradas às telas já desenvolvidas no Trabalho 2.
 
-Na Caixinha, a tela de detalhes possui uma funcionalidade adicional de remoção da movimentação. Isso foi feito para tornar a tela mais interativa e atender aos requisitos do MAF.
+---
+
+## 🔎 Tela de detalhes consultando o banco
+
+Uma das mudanças realizadas foi adaptar a tela de detalhes para consultar as informações diretamente no banco de dados.
+
+Quando o usuário seleciona uma movimentação, seu identificador é utilizado para buscar o registro correspondente.
+
+Essa implementação utiliza consultas filtradas pelo campo `id`, evitando depender exclusivamente dos objetos armazenados em memória.
+
+---
+
+## ⚡ Kotlin Coroutines e Flow
+
+Foram utilizadas Kotlin Coroutines para realizar operações de banco de dados sem bloquear a interface principal.
+
+As operações de escrita utilizam `Dispatchers.IO`, permitindo executar tarefas de entrada e saída em uma thread apropriada.
+
+Também foi utilizado `Flow` para observar os registros do banco de dados.
+
+Dessa forma, quando uma movimentação é adicionada, atualizada ou removida, as listas podem refletir automaticamente as alterações.
+
+---
+
+## 🔄 Evolução do Trabalho 2 para o Trabalho 3
+
+No Trabalho 2, as movimentações eram armazenadas principalmente em listas na memória do aplicativo.
+
+Isso significava que os dados poderiam ser perdidos ao fechar o aplicativo.
+
+No Trabalho 3, foram realizadas as seguintes mudanças:
+
+1. Adição das dependências do Room e KSP.
+2. Criação das entidades do banco de dados.
+3. Criação das interfaces DAO.
+4. Implementação da classe `MeuDinheiroDatabase`.
+5. Integração do banco com a `MainActivity`.
+6. Adaptação das listas para consultar os registros persistidos.
+7. Implementação das operações de inserção, consulta, edição e exclusão.
+8. Adaptação das telas de detalhes para consultar os registros pelo ID.
+9. Realização de testes de persistência.
 
 ---
 
 ## 🧠 Dificuldades encontradas
 
-Durante o desenvolvimento, uma das principais dificuldades foi organizar a navegação entre várias telas.
+Durante a implementação do Trabalho 3, foram encontradas algumas dificuldades.
 
-A solução foi utilizar o `NavController` juntamente com o `NavHost`, criando rotas específicas para cada tela.
+**Configuração do Gradle e KSP:** ocorreram problemas de configuração dos plugins Kotlin e KSP. A solução envolveu revisar os arquivos Gradle e sincronizar novamente o projeto.
 
-Outra dificuldade foi trabalhar com listas que precisavam ser atualizadas automaticamente. Para isso, foi utilizado o `mutableStateListOf`.
+**Compilação do aplicativo:** ocorreram erros relacionados aos arquivos temporários de compilação. Para resolver, foi necessário limpar os arquivos de build e executar uma nova sincronização.
+
+**Configuração do emulador:** inicialmente, o Android Studio não reconhecia um dispositivo disponível. O problema foi resolvido configurando e iniciando um emulador Pixel 9.
+
+**Persistência dos dados:** foi necessário adaptar o funcionamento das telas para utilizar os registros armazenados no Room, em vez de depender apenas das listas em memória.
+
+Após os ajustes, o aplicativo foi executado e as principais operações foram testadas.
+
+---
+
+## 🧪 Testes realizados
+
+Foram realizados testes manuais no emulador Android Pixel 9.
+
+| Teste | Resultado |
+|---|---|
+| Abrir o aplicativo | ✅ Aprovado |
+| Adicionar movimentação | ✅ Aprovado |
+| Consultar movimentação | ✅ Aprovado |
+| Editar movimentação | ✅ Aprovado |
+| Excluir movimentação | ✅ Aprovado |
+| Fechar e reabrir mantendo os registros | ✅ Aprovado |
+| Guardar dinheiro na Caixinha | ✅ Aprovado |
+| Fechar e reabrir mantendo o saldo da Caixinha | ✅ Aprovado |
+| Confirmar a persistência da edição | ✅ Aprovado |
+| Confirmar a persistência da exclusão | ✅ Aprovado |
+
+### Teste de persistência
+
+Para verificar o funcionamento do banco de dados, foi realizado o seguinte procedimento:
+
+1. Abrir o aplicativo.
+2. Adicionar uma entrada de R$ 200.
+3. Consultar a movimentação cadastrada.
+4. Fechar completamente o aplicativo.
+5. Abrir novamente.
+6. Confirmar que a movimentação continuava armazenada.
+7. Editar o valor para R$ 150.
+8. Fechar e abrir novamente para verificar a alteração.
+9. Excluir a movimentação.
+10. Reiniciar o aplicativo e confirmar que o registro não reapareceu.
+
+O teste demonstrou que as operações de cadastro, consulta, atualização e exclusão funcionaram com persistência nos cenários avaliados.
 
 ---
 
 ## ▶️ Como executar o projeto
 
-1. Instale o **Android Studio**.
-2. Clone ou baixe este repositório.
-3. Abra o projeto no Android Studio.
+1. Instale o Android Studio.
+2. Clone o repositório:
+
+   `git clone https://github.com/Vitor-vt/MeuDinheiro-Trabalho3.git`
+
+3. Abra a pasta do projeto no Android Studio.
 4. Aguarde a sincronização do Gradle.
-5. Execute o aplicativo em um emulador Android ou dispositivo físico.
-6. Pressione **Run ▶** para iniciar o aplicativo.
+5. Configure um emulador Android ou conecte um dispositivo físico.
+6. Selecione o módulo `app`.
+7. Clique em **Run ▶**.
+
+O banco de dados Room é criado automaticamente quando inicializado pelo aplicativo.
+
+Não é necessário configurar um servidor externo.
 
 ---
 
-## 📸 Demonstração
+## 📸 Evidências e demonstração
 
-## 🎥 Vídeo de demonstração
+A apresentação do Trabalho 3 demonstra:
 
-[▶️ Clique aqui para assistir ao vídeo do aplicativo](https://youtu.be/IYNQxHGVsd4)
+- Aplicativo funcionando no emulador.
+- Registro de uma nova movimentação.
+- Consulta dos dados cadastrados.
+- Edição de uma movimentação.
+- Exclusão de uma movimentação.
+- Funcionamento da Caixinha.
+- Persistência dos dados após fechar e reabrir o aplicativo.
 
-Durante a apresentação/entrega do trabalho podem ser adicionadas capturas de tela ou um vídeo demonstrando:
+**Vídeo de demonstração do Trabalho 3:** adicionar link após a gravação.
 
-- Tela inicial
-- Registro de entrada
-- Registro de gasto
-- Lista de movimentações
-- Tela de detalhes
-- Minha Caixinha
-- Detalhes da Caixinha
-- Resumo do mês
-- Meta de economia
-- Transferência
+---
+
+## 📌 Repositório GitHub
+
+**https://github.com/Vitor-vt/MeuDinheiro-Trabalho3**
 
 ---
 
@@ -216,7 +279,12 @@ Durante a apresentação/entrega do trabalho podem ser adicionadas capturas de t
 
 **Rafael**
 
-**Cesar**
+---
 
+## ✅ Conclusão
 
-Projeto desenvolvido para fins acadêmicos.
+O Trabalho 3 permitiu evoluir o aplicativo Meu Dinheiro com a implementação de um banco de dados local utilizando Room Database.
+
+Com essa implementação, as movimentações financeiras passaram a ser armazenadas de forma persistente, permitindo realizar operações CRUD e recuperar as informações após fechar e reabrir o aplicativo.
+
+O desenvolvimento proporcionou conhecimentos práticos sobre entidades, DAOs, SQLite, Kotlin Coroutines, Flow e integração de banco de dados com interfaces desenvolvidas em Jetpack Compose.
