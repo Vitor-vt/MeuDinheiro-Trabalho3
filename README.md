@@ -263,7 +263,7 @@ A apresentação do Trabalho 3 demonstra:
 - Funcionamento da Caixinha.
 - Persistência dos dados após fechar e reabrir o aplicativo.
 
-**Vídeo de demonstração do Trabalho 3:** adicionar link após a gravação.
+**[Vídeo de demonstração do Trabalho 3:](https://youtu.be/22sGwhTUWVk)**
 
 ---
 
